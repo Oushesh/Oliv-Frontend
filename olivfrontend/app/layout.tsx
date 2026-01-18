@@ -1,3 +1,4 @@
+/*
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -32,3 +33,37 @@ export default function RootLayout({
     </html>
   );
 }
+
+This was the old layout.tsx
+New Layout.tsx is below
+*/
+
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+
+
+const inter = Inter({ subsets: ["latin"] });
+
+export const metadata: Metadata = {
+  title: "Blueprint | Olive Oil",
+  description: "Don't die.",
+};
+
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en" className="antialiased">
+      <body className={`${inter.className} bg-white text-black dark:bg-[#0a0a0a] dark:text-white`}>
+        {children}
+      </body>
+    </html>
+  );
+}
+
+
+
