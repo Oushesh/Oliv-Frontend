@@ -1,18 +1,36 @@
 import Image from "next/image";
 
+
+interface Product {
+  name: string;
+  tagline: string; 
+  desc: string;
+  stats: {
+    polyphenol: string;
+    acidity: string;
+    origin: string;
+  };
+  price: string; 
+  link: string; 
+  image: string; //Added for typescript 
+
+}
+
+
 export default function () {
 	//Define all the components for the page to appear on the Frontend of the page.
 	//Defined as const List of components
 
-	const products = [
+	const products: Product[] = [
 		{
 			name: "Green Machine",
 			tagline: "For a health boost",
 			desc: "Ultra-high polyphenol, maximum functional depth. Harvested early when olives are green and hard.",
 			stats: { polyphenol: "1378 mg/kg",
 				acidity:"0.22%",origin: "Puglia,IT"},
-			
-			link: "https://www.olvlimits.com/products/green-machine"
+			price: "€23",
+			link: "https://www.olvlimits.com/products/green-machine",
+      image: "https://www.olvlimits.com/cdn/shop/files/GreenMachine_Bottle_Front.png"
 			},
 		{
       name: "Green Queen",
@@ -20,7 +38,8 @@ export default function () {
       desc: "Balanced polyphenols, everyday nourishment. A flavor bomb designed to finish your dishes.",
       stats: { polyphenol: "371 mg/kg", acidity: "0.20%", origin: "Spain/Italy" },
       price: "€21",
-      link: "https://www.olvlimits.com/products/green-queen"
+      link: "https://www.olvlimits.com/products/green-queen",
+      image: "https://www.olvlimits.com/cdn/shop/files/GreenQueen_Bottle_Front.png"
     },
     {
       name: "Yellow Mellow",
@@ -28,9 +47,10 @@ export default function () {
       desc: "Mellow in flavor, heat-resistant, and perfect for roasting, baking, and warm dishes.",
       stats: { polyphenol: "404 mg/kg", acidity: "0.18%", origin: "Spain" },
       price: "€18",
-      link: "https://www.olvlimits.com/products/yellow-mellow"
+      link: "https://www.olvlimits.com/products/yellow-mellow",
+      image: "https://www.olvlimits.com/cdn/shop/files/YellowMellow_Bottle_Front.png"
     }
-	]
+	];
 
 	return (
 		<main className="min-h-screen bg-black text-white p-6 md:p-12 max-w-7xl mx-auto flex flex-col gap-24">
@@ -59,8 +79,24 @@ export default function () {
 
       {/* Product Grid */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-        {products.map((product, i) => (
+        {products.map((product: Product, i: number) => (
           <div key={i} className="flex flex-col gap-6 border border-zinc-800 p-8 hover:border-zinc-500 transition-colors group">
+            
+            {/* Bottle Image Container */}
+            <div className="relative aspect-[4/5] w-full bg-zinc-900/30 mb-4 overflow-hidden flex items-center justify-center border border-zinc-800/50">
+              <Image 
+                src={product.image}
+                alt={product.name}
+                fill
+                sizes="(max-width: 768px) 100vw, 33vw"
+                className="object-contain p-8 group-hover:scale-110 transition-transform duration-500 ease-in-out"
+                priority={i === 0} // Loads the first image faster
+              />
+              <div className="absolute top-3 right-3 bg-black/40 backdrop-blur-md border border-white/10 px-2 py-0.5 rounded-sm">
+                 <span className="text-[8px] font-bold tracking-widest text-zinc-300 uppercase">Lab Verified</span>
+              </div>
+            </div>
+
             <div className="flex justify-between items-start">
               <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">
                 {product.tagline}
@@ -73,6 +109,7 @@ export default function () {
               {product.desc}
             </p>
 
+            {/* Lab Markers */}
             <div className="grid grid-cols-2 gap-4 py-6 border-y border-zinc-900">
               <div>
                 <p className="text-[9px] uppercase tracking-widest text-zinc-600 mb-1">Polyphenols</p>
@@ -87,6 +124,7 @@ export default function () {
             <a 
               href={product.link}
               target="_blank"
+              rel="noopener noreferrer"
               className="mt-4 w-full bg-white text-black text-[10px] font-bold py-4 text-center uppercase tracking-widest hover:bg-zinc-200 transition-colors"
             >
               Order Now
