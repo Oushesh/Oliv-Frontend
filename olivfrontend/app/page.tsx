@@ -78,9 +78,14 @@ export default function Home() {
       {/* Navigation Header */}
       <nav className="flex justify-between items-center border-b border-zinc-200 dark:border-zinc-800 pb-4">
         <span className="font-bold tracking-tighter text-xl">BLUEPRINT</span>
-        <button className="text-xs font-bold tracking-widest uppercase border border-black dark:border-white px-4 py-2 rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all">
+        <a 
+          href="https://blueprint.bryanjohnson.com/products/extra-virgin-olive-oil"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[10px] font-bold tracking-widest uppercase border border-black dark:border-white px-5 py-2 rounded-full hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all"
+        >
           Shop Now
-        </button>
+        </a>
       </nav>
 
       {/* Hero Section */}
