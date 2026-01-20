@@ -30,7 +30,7 @@ export default function () {
 				acidity:"0.22%",origin: "Puglia,IT"},
 			price: "€23",
 			link: "https://www.olvlimits.com/products/green-machine",
-      image: "https://www.olvlimits.com/cdn/shop/files/GreenMachine_Bottle_Front.png"
+      image: "/images/olvlimits/GreenMachine.avif"
 			},
 		{
       name: "Green Queen",
@@ -39,7 +39,7 @@ export default function () {
       stats: { polyphenol: "371 mg/kg", acidity: "0.20%", origin: "Spain/Italy" },
       price: "€21",
       link: "https://www.olvlimits.com/products/green-queen",
-      image: "https://www.olvlimits.com/cdn/shop/files/GreenQueen_Bottle_Front.png"
+      image: "/images/olvlimits/GreenQueen.avif"
     },
     {
       name: "Yellow Mellow",
@@ -48,7 +48,7 @@ export default function () {
       stats: { polyphenol: "404 mg/kg", acidity: "0.18%", origin: "Spain" },
       price: "€18",
       link: "https://www.olvlimits.com/products/yellow-mellow",
-      image: "https://www.olvlimits.com/cdn/shop/files/YellowMellow_Bottle_Front.png"
+      image: "/images/olvlimits/YellowMellow.avif"
     }
 	];
 
