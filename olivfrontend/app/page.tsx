@@ -116,6 +116,20 @@ export default function Home() {
              </div>
           </div>
         </div>
+
+        {/* Video Preview Container */}
+        <div className="bg-zinc-100 dark:bg-zinc-900 aspect-[4/5] flex items-center justify-center rounded-sm overflow-hidden border border-zinc-200 dark:border-zinc-800 relative">
+          <iframe
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none scale-[1.2]" 
+            src="https://www.youtube.com/embed/bYLkSXq54k4?autoplay=1&mute=1&loop=1&playlist=bYLkSXq54k4&controls=0&showinfo=0&rel=0&start=0&end=15"
+            title="Bryan Johnson Olive Oil Preview"
+            allow="autoplay; encrypted-media"
+            allowFullScreen
+          ></iframe>
+          {/* Optional Overlay to match the Blueprint "muted" look */}
+          <div className="absolute inset-0 bg-black/5 pointer-events-none"></div>
+        </div>
+        
       </section>
 
       {/* Details Grid */}
