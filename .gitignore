@@ -2,3 +2,7 @@
 */target/*
 VideoAnalyzer/video-truth-agent/target/*
 VideoAnalyzer/memory/target/*
+
+
+.DS_Store
+.idea/*
