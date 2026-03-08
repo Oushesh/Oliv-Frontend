@@ -14,12 +14,12 @@ struct GeminiRequest {
     messages: Vec<Message>,
 }
 
+
 #[derive(Serialize)]
 struct Message {
     role: String,
     content: String,
 }
-
 
 //From an architecture point of view (pov),
 #[derive(Deserialize, Debug)]
