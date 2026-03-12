@@ -13,4 +13,11 @@
    Apply the Agent2Agent Protocol here.
    
 
-## 
+## Test:
+   Protocol of how to write the test for the API
+   
+   3 endpoints: 
+   3 endpoint testing and health protocol
+   
+
+## Build a Demo RaG for Omega 3 Supplements
