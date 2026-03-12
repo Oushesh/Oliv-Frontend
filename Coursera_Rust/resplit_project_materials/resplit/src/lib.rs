@@ -31,7 +31,6 @@ pub fn splt(s: String, cli:&Cli)
 } 
 
 
-
 //Trim in Rust remove trailing spaces. 
 
 /*
