@@ -9,12 +9,7 @@ score=e−^{(x−origin)^2}/2σ2
  score = e-^{(lambda*x)}
  */
 
-//Import for testing
-use std::sync::{Arc, Mutex};
-use axum::Router;
-use axum::routing::get;
-
-pub fn gaussian_decay(x:f64, origin:f64, scale:f64) -> f64 {
+pub fn gaussian_decay(x:f64,origin:f64,scale:f64)-> f64 {
     //Compute numerator, then denominator then compute them together
     let numerator = (x-origin).powi(2);
     let denominator =2.0*scale.powi(2);
@@ -54,7 +49,7 @@ relevance feedback.
 
 
 pub fn relevance_feedback(){
-
+    
 
 }
 
@@ -73,26 +68,5 @@ pub fn calculate_centroid_score(query_sim:f64,positives:&[f64],negatives:&[f64],
     let pos_mean= get_average(positives);
     let neg_mean= get_average(negatives);
     query_sim+(alpha*pos_mean)-(beta*neg_mean)
-}
-
-
-/*
-imports for testing
- */
-
-pub struct AppState {
-    pub total_calls: Mutex<u64>,
-}
-
-//Make your handlers and DTOs public!
-pub async fn health_check() -> &'static str { "OK" }
-
-pub fn create_app() -> Router {
-    let state = Arc::new(AppState {total_calls:Mutex::new(0)});
-    Router::new()
-    .route("/", get(health_check))
-    .route("/health", get(health_check))
-        //... add other routes ...
-        .with_state(state)
 }
 
