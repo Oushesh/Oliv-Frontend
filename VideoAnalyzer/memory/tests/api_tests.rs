@@ -8,6 +8,8 @@ use axum::{body::Body, http::{Request, StatusCode}};
 use tower::ServiceExt;
 // Import from your library crate
 use memory::{create_app};
+use serde_json::json;
+
 #[tokio::test]
 async fn test_health_check() {
     let app = create_app(); // This now has a concrete type the compiler can infer
@@ -48,6 +50,6 @@ async fn test_calculate_api_logic()
     ).await.unwrap();
     //perform an assertion in the question
     assert_eq!(response.status(), StatusCode::OK);
-    }
 }
+
 
