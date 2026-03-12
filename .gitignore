@@ -1,0 +1,8 @@
+.env
+*/target/*
+VideoAnalyzer/video-truth-agent/target/*
+VideoAnalyzer/memory/target/*
+VideoAnalyzer/memory/target/debug/*
+
+.DS_Store
+.idea/*

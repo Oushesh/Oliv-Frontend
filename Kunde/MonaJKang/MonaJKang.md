@@ -24,7 +24,6 @@ Lets say First Client:
 1. Mona J Kang --> 1200 EUR
 2. Her husband --> 1200 EUR
 
-
 3. Dr. Andreas Gösch + seine familie --> Produkte --> 2400 EUR 
 
 Try to make the sales working in your favour.
