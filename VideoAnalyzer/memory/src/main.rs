@@ -104,7 +104,7 @@ async fn main()
     /*
     let query_sim:f64 =0.85;
     let positives: Vec<f64> =vec![0.9,0.8,0.75];
-    let negatives:Vec<f64> = vec![0.2,0.1];
+    let negatives:Vec<f64> = vec![0.2,0.1]sf;
     let alpha:f64 = 0.1;
     let beta:f64 = 0.05;
     */
@@ -122,4 +122,8 @@ async fn main()
 //Now how to add test for health check of the APIs and then --> design the RAG system
 //Database and stuffs
 
-//
+// Now how dod we live build this scoring mechanism so that the app does  not become slow.
+
+// Key Questions: how could we test those data at scale with the embeddings ?
+// How much latency is added to perform this tempoeral dacay?
+// how much does is to cost to perform 
