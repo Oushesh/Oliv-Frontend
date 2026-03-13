@@ -126,4 +126,4 @@ async fn main()
 
 // Key Questions: how could we test those data at scale with the embeddings ?
 // How much latency is added to perform this tempoeral dacay?
-// how much does is to cost to perform 
+// how much does is to cost to perform
