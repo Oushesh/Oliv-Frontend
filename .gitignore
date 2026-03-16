@@ -46,3 +46,7 @@ olivfrontend/.vercel/
 # typescript
 olivfrontend/*.tsbuildinfo
 olivfrontend/next-env.d.ts
+
+
+## Backend For the AI Agent
+## I wanna see how to deploy the agents needed here.
