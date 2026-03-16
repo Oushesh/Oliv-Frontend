@@ -6,3 +6,43 @@ VideoAnalyzer/memory/target/debug/*
 
 .DS_Store
 .idea/*
+
+####NEXTJS Project
+
+
+# dependencies
+olivfrontend/node_modules/
+olivfrontend/.pnp
+olivfrontend/.pnp.*
+olivfrontend/.yarn/*
+!olivfrontend/.yarn/patches
+!olivfrontend/.yarn/plugins
+!olivfrontend/.yarn/releases
+!olivfrontend/.yarn/versions
+
+# testing
+olivfrontend/coverage/
+
+# next.js
+olivfrontend/.next/
+olivfrontend/out/
+
+# production
+olivfrontend/build/
+
+# misc (These usually apply globally)
+.DS_Store
+*.pem
+
+# debug
+*.log*
+
+# env files
+olivfrontend/.env*
+
+# vercel
+olivfrontend/.vercel/
+
+# typescript
+olivfrontend/*.tsbuildinfo
+olivfrontend/next-env.d.ts
