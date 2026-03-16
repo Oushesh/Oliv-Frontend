@@ -50,3 +50,8 @@ olivfrontend/next-env.d.ts
 
 ## Backend For the AI Agent
 ## I wanna see how to deploy the agents needed here.
+
+## Backend and how to deploy agents doing the jobs for you.
+olivbackend/.env
+
+**.env
