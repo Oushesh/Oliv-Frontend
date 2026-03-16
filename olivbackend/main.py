@@ -4,6 +4,10 @@ import sys
 from pathlib import Path 
 from dotenv import load_dotenv
 from google.genai import types
+from ddgs import DDGS
+
+
+# Define exactly what a "Harvest Result" looks like
 
 
 # Load environment variables from .env file
@@ -24,7 +28,6 @@ def check_env():
     masked_key = f"{api_key[:4]}...{api_key[-4:]}"
     print(f"✅ Environment loaded successfully. Key: {masked_key}")
 
-
 ## Add models from a list of models from the background
 
 """
@@ -40,54 +43,70 @@ Function: Take the Brand name and perform the Harvest call
 
 from duckduckgo_search import DDGS
 
-def run_harvest_agent_no_tool(brand_name):
+def run_harvest_agent_ddgs(brand_name):
+    harvest_schema = {
+        "type": "OBJECT",
+        "properties": {
+            "brand": {"type": "STRING"},
+            "harvest_found": {"type": "BOOLEAN"},
+            "harvest_date": {"type": "STRING", "nullable": True},
+            "confidence_score": {"type": "INTEGER", "description": "1-10 scale"},
+            "source_url": {"type": "STRING"}
+        },
+        "required": ["brand", "harvest_found", "harvest_date"]
+    }
+
     client = genai.Client()
     
-    # 1. Manually search for free using DuckDuckGo
+    # 1. Get clean search data
     with DDGS() as ddgs:
-        # Get the first 3 snippets from the web
-        results = [r['body'] for r in ddgs.text(f"{brand_name} olive oil harvest 2025", max_results=3)]
+        # We search specifically for the year to force recent results
+        search_query = f"{brand_name} olive oil harvest official website"
+        results = [f"Source: {r['href']}\nContent: {r['body']}" for r in ddgs.text(search_query, max_results=5)]
     
-    web_context = "\n".join(results)
+    web_context = "\n---\n".join(results)
 
-    # 2. Feed that text to Gemini (this uses the normal text quota, NOT the tool quota)
-    prompt = f"""
-    Web Search Results:
-    {web_context}
+    # 2. Strict System Instruction
+    system_instruction = (
+        "You are a precision data extraction agent. Use ONLY the provided search context. "
+        "If a specific harvest year (2024, 2025, or 2026) is not explicitly mentioned, "
+        "set 'harvest_found' to false. Do not use your internal knowledge of past years."
+    )
 
-    Task: Based on the search results above, find the harvest date for {brand_name}.
-    If found, say 'New harvest found: [Date]'.
-    If not found, say 'NOT FOUND'.
-    """
+    # 3. Request JSON output
+    config = types.GenerateContentConfig(
+        system_instruction=system_instruction,
+        temperature=0, # No randomness
+        response_mime_type="application/json",
+        response_schema=harvest_schema
+    )
+
+    prompt = f"Extract harvest information for brand: {brand_name}\n\nSearch Data:\n{web_context}"
 
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
-        contents=prompt
-        # config=config  <-- REMOVE the tools config here!
+        contents=prompt,
+        config=config
     )
     
-    return response.text
-
-
-def run_harvest_agent_manual(brand_name):
-    client = genai.Client()
-    
-    # Get the web data for FREE (no API cost, no 20-request limit)
-    with DDGS() as ddgs:
-        results = [r['body'] for r in ddgs.text(f"{brand_name} olv limits", max_results=3)]
-    
-    context = "\n".join(results)
-    prompt = f"Using this web data:\n{context}\n\nWhat is the harvest date for {brand_name}?"
-
-    # Call Gemini WITHOUT the search tool
-    response = client.models.generate_content(
-        model="gemini-3-flash-preview",
-        contents=prompt
-    )
     return response.text
 
 
 def run_harvest_agent(brand_name):
+    # Define exactly what a "Harvest Result" looks like
+    harvest_schema = {
+        "type": "OBJECT",
+        "properties": {
+            "brand": {"type": "STRING"},
+            "harvest_found": {"type": "BOOLEAN"},
+            "harvest_date": {"type": "STRING", "nullable": True},
+            "confidence_score": {"type": "INTEGER", "description": "1-10 scale"},
+            "source_url": {"type": "STRING"}
+        },
+        "required": ["brand", "harvest_found", "harvest_date"]
+    }
+
+
     # Use the client initialized with your API key
     client = genai.Client()
 
@@ -99,9 +118,12 @@ def run_harvest_agent(brand_name):
 
     # 2. Put the tool inside a Config object
     config = types.GenerateContentConfig(
+        response_mime_type="application/json",
+        response_schema=harvest_schema,
         tools=[google_search_tool],
-        temperature=1.0 # Recommended for grounding to encourage searching
+        temperature=0.0 # Crucial for consistency.
     )
+
 
     prompt = (
         f"Find the harvest date for the latest batch of {brand_name} olive oil. "
@@ -149,8 +171,8 @@ def main():
 
     #brand_name_Pamako = "Pamako"
     #run_harvest_agent(brand_name_Pamako)
-    result = run_harvest_agent_manual(brand_name_OlvLimit)
-    print (f"Gemini says: {result} after manual searching")
+    result = run_harvest_agent_ddgs(brand_name_OlvLimit)
+    print (f"Gemini + Duckduckgo say: {result} after manual searching")
 
 
 if __name__ == "__main__":
@@ -160,9 +182,14 @@ if __name__ == "__main__":
 # We can go deeper and make the agent more complicated --> Decision Making Process
 # Example Filter from database, metadata and guessing or inferring date from
 
-
 ## Here itself for the agent we can say Enable Billing or use: duckduckgo-search
 ## To get the results myself
 
 
 ## Build this like a state machine so the agent has a fallback in case  
+
+
+## Refer to documentaion of response schema: 
+
+
+
