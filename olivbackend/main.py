@@ -114,7 +114,7 @@ def run_harvest_agent(brand_name):
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
         contents=prompt,
-        config=config  # <--- This activates the search
+        config=config  # <--- This activates the search 
     )
     
     return response.text
@@ -163,3 +163,6 @@ if __name__ == "__main__":
 
 ## Here itself for the agent we can say Enable Billing or use: duckduckgo-search
 ## To get the results myself
+
+
+## Build this like a state machine so the agent has a fallback in case  
