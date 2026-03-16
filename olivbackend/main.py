@@ -105,8 +105,8 @@ def run_harvest_agent(brand_name):
 
     prompt = (
         f"Find the harvest date for the latest batch of {brand_name} olive oil. "
-        f"Search the official website for '{brand_name}' and check for any 'New Harvest' announcements. "
-        f"If you see a specific month/year for the 2025 or 2026 harvest, say 'New harvest found: [Date]'. "
+        f"https:// {brand_name} .com or similar search from their similar websites."
+        f"If you see a specific month/year for the year: 2025 or 2026 harvest, say 'New harvest found: [Date]'. "
         f"Otherwise, say 'NOT FOUND'."
     )
     
@@ -125,7 +125,7 @@ def test_gemini():
     # 'GEMINI_API_KEY'
 
     #TODO: make it a try and catch block
-    try: 
+   
     client = genai.Client()
     response = client.models.generate_content(
         model="gemini-3-flash-preview", contents="Explain how AI works in a few words"
@@ -139,18 +139,18 @@ def test_gemini():
 def main():
     check_env()
     result = test_gemini()
-    print (f"Gemini says: {result}")
+    print (f"Test Results: {result}")
 
     print("Hello from olivbackend!")
     brand_name_OlvLimit = "OlvLimit"
 
-    result=run_harvest_agent(brand_name_OlvLimit)
-    print (f"Gemini says: {result}")
+    result = run_harvest_agent(brand_name_OlvLimit)
+    print (f"Gemini says : {result}")
 
     #brand_name_Pamako = "Pamako"
     #run_harvest_agent(brand_name_Pamako)
     result = run_harvest_agent_manual(brand_name_OlvLimit)
-    print (f"Gemini says: {result}")
+    print (f"Gemini says: {result} after manual searching")
 
 
 if __name__ == "__main__":
