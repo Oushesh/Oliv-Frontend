@@ -174,7 +174,6 @@ def main():
     result = run_harvest_agent_ddgs(brand_name_OlvLimit)
     print (f"Gemini + Duckduckgo say: {result} after manual searching")
 
-
 if __name__ == "__main__":
     main()
 
