@@ -149,11 +149,24 @@ def run_harvest_agent(brand_name):
         f"If you see a specific month/year for the year: 2025 or 2026 harvest, say 'New harvest found: [Date]'. "
         f"Otherwise, say 'NOT FOUND'."
     )
+
+    ReACT_prompt = (
+        f"Task: Find the harvest date for the latest batch of {brand_name} olive oil."
+        f"Rules:"
+        f"You must follow the Thought / Action / Observation loop."
+        f"Use Thought to plan the search and evaluate the results found."
+        f"Use Action to search Google, visit {brand_name}.com, or search similar retail sites."
+        f"If you find a specific month/year for the 2025 or 2026 harvest, your final answer must be: "New harvest found: [Date]"."
+        f"If no 2025/2026 date is found after searching, your final answer must be: "NOT FOUND"."
+        )
+
+
+    ##ReAct Based Prompt.
     
     # 3. CRITICAL: Pass the config here!
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
-        contents=prompt,
+        contents=REACT_prompt,
         config=config  # <--- This activates the search 
     )
     
