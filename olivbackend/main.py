@@ -21,14 +21,11 @@ env_path = Path(__file__).parent/".env"
 
 
 ###################################
+"""
 Chain of Thought Reasoning: 
 ReACT Framework: 
-
-
 Use the following question as an example: 
-
-
-
+"""
 ###################################
 
 
@@ -110,7 +107,71 @@ def run_harvest_agent_ddgs(brand_name):
     return response.text
 
 
-def run_harvest_agent(brand_name):
+
+def run_harvest_agent_REACT(brand_name):
+    client = genai.Client()
+
+    # 1. Define the Structured Output Schema
+    harvest_schema = {
+        "type": "OBJECT",
+        "properties": {
+            "brand": {"type": "STRING"},
+            "harvest_found": {"type": "BOOLEAN"},
+            "harvest_date": {"type": "STRING", "nullable": True},
+            "confidence_score": {"type": "INTEGER", "description": "1-10 scale"},
+            "source_url": {"type": "STRING"}
+        },
+        "required": ["brand", "harvest_found", "harvest_date"]
+    }
+
+    # 2. Define the Google Search Tool
+    google_search_tool = types.Tool(
+        google_search=types.GoogleSearch() 
+    )
+
+    # 3. Create the Config (Combining Search + JSON Schema)
+    config = types.GenerateContentConfig(
+        response_mime_type="application/json",
+        response_schema=harvest_schema,
+        tools=[google_search_tool],
+        temperature=0.0
+    )
+
+    # 4. The ReAct Instructions (System Instruction style)
+    # We tell the model to use the ReAct method to fill the schema.
+    instructions = f"""
+    You are a research agent looking for {brand_name} olive oil harvest dates.
+    
+    METHOD:
+    - Thought: Plan which URL to visit (start with {brand_name}.com).
+    - Action: Use the 'google_search' tool to find the official site or recent press.
+    - Observation: Review the search results for 2025 or 2026 dates.
+    
+    CRITERIA:
+    - If a 2025/2026 date is found, set harvest_found to True.
+    - If only older dates (2024 or earlier) exist, set harvest_found to False and harvest_date to null.
+    - Return the final result in the requested JSON format.
+    """
+
+    user_prompt = f"What is the latest harvest date for {brand_name} olive oil?"
+
+    # 5. Execute in one call
+    # Gemini 3 Flash will handle the Thought/Action/Observation loop internally 
+    # because the 'google_search' tool is enabled.
+    response = client.models.generate_content(
+        model="gemini-3-flash-preview",
+        contents=[instructions, user_prompt],
+        config=config
+    )
+    
+    return response.text
+
+# Example usage:
+# print(run_harvest_agent("Cobram Estate"))
+
+
+
+def run_harvest_agent_THOUGHT(brand_name):
     # Define exactly what a "Harvest Result" looks like
     harvest_schema = {
         "type": "OBJECT",
@@ -139,6 +200,7 @@ def run_harvest_agent(brand_name):
         response_mime_type="application/json",
         response_schema=harvest_schema,
         tools=[google_search_tool],
+        thinking_config = types.ThinkingConfig(include_thoughts=True), #<-- Enable though
         temperature=0.0 # Crucial for consistency.
     )
 
@@ -151,13 +213,16 @@ def run_harvest_agent(brand_name):
     )
 
     ReACT_prompt = (
-        f"Task: Find the harvest date for the latest batch of {brand_name} olive oil."
-        f"Rules:"
-        f"You must follow the Thought / Action / Observation loop."
-        f"Use Thought to plan the search and evaluate the results found."
-        f"Use Action to search Google, visit {brand_name}.com, or search similar retail sites."
-        f"If you find a specific month/year for the 2025 or 2026 harvest, your final answer must be: "New harvest found: [Date]"."
-        f"If no 2025/2026 date is found after searching, your final answer must be: "NOT FOUND"."
+        f"""
+                Task: Find the harvest date for the latest batch of {brand_name} olive oil.
+
+                Rules:
+                1. You must follow the Thought / Action / Observation loop.
+                2. Use Thought to plan the search and evaluate the results found.
+                3. Use Action to search Google, visit {brand_name}.com, or search similar retail sites.
+                4. If you find a specific month/year for the 2025 or 2026 harvest, your final answer must be: "New harvest found: [Date]".
+                5. If no 2025/2026 date is found after searching, your final answer must be: "NOT FOUND".
+                """
         )
 
 
@@ -166,10 +231,24 @@ def run_harvest_agent(brand_name):
     # 3. CRITICAL: Pass the config here!
     response = client.models.generate_content(
         model="gemini-3-flash-preview",
-        contents=REACT_prompt,
+        contents=ReACT_prompt,
         config=config  # <--- This activates the search 
     )
     
+
+    # iterate through parts to find the 'thought' part or the 'text' part
+    for part in response.candidates[0].content.parts:
+        if part.thought:
+            print (f"🧠 THOUGHT: {part.text}")
+        elif part.text:
+            print (f"📄 FINAL JSON: {part.text}")
+
+
+    # Also extract the actual search queries used (The "Actions")
+    if response.candidates[0].grounding_metadata:
+        queries = response.candidates[0].grounding_metadata.web_search_queries
+        if queries:
+            print (f"🔍 ACTIONS (Search Queries): {queries}")
     return response.text
 
 def test_gemini():
@@ -197,13 +276,14 @@ def main():
     print("Hello from olivbackend!")
     brand_name_OlvLimit = "OlvLimit"
 
-    result = run_harvest_agent(brand_name_OlvLimit)
+    result = run_harvest_agent_THOUGHT(brand_name_OlvLimit)
     print (f"Gemini says : {result}")
 
     #brand_name_Pamako = "Pamako"
     #run_harvest_agent(brand_name_Pamako)
-    result = run_harvest_agent_ddgs(brand_name_OlvLimit)
-    print (f"Gemini + Duckduckgo say: {result} after manual searching")
+    
+    #result = run_harvest_agent_ddgs(brand_name_OlvLimit)
+    #print (f"Gemini + Duckduckgo say: {result} after manual searching")
 
 if __name__ == "__main__":
     main()
