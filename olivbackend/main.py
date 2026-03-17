@@ -13,8 +13,26 @@ from ddgs import DDGS
 # Load environment variables from .env file
 load_dotenv(".env")
 
+
 #We can also put a test if GEMINI_API_KEY is available or not
 env_path = Path(__file__).parent/".env"
+
+
+
+
+###################################
+Chain of Thought Reasoning: 
+ReACT Framework: 
+
+
+Use the following question as an example: 
+
+
+
+###################################
+
+
+
 
 
 def check_env():
