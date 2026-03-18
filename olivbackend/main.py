@@ -302,4 +302,12 @@ if __name__ == "__main__":
 ## Refer to documentaion of response schema: 
 
 
+## Make the comparison between getsolio and OlvLimits
+
+
+## How do I check ghost companies? I check their email domain? and see how it works.
+## Company is active so no ghost companies.
+
+## 
+
 
