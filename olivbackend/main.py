@@ -19,7 +19,6 @@ env_path = Path(__file__).parent/".env"
 
 
 
-
 ###################################
 """
 Chain of Thought Reasoning: 
@@ -27,8 +26,6 @@ ReACT Framework:
 Use the following question as an example: 
 """
 ###################################
-
-
 
 
 
@@ -53,7 +50,7 @@ gemini-1.5-flash
 
 """
 Function: Take the Brand name and perform the Harvest call
-2 scenarios: Olvlimit, Pamako
+2 scenarios: Olvlimit, Pamako, GetSolio as the most important brand.
 """
 
 from duckduckgo_search import DDGS
