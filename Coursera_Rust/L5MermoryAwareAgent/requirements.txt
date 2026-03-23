@@ -1,0 +1,14 @@
+langchain-oracledb
+langchain-huggingface
+sentence-transformers
+langchain-community
+langchain-openai
+datasets
+langchain
+tavily-python
+pydantic
+oracledb
+openai
+dotenv
+arxiv
+pymupdf

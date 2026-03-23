@@ -1,0 +1,23 @@
+[project]
+name = "l5mermoryawareagent"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+
+dependencies = [
+    "langchain-oracledb",
+    "langchain-huggingface",
+    "sentence-transformers",
+    "langchain-community",
+    "langchain-openai",
+    "datasets",
+    "langchain",
+    "tavily-python",
+    "pydantic",
+    "oracledb",
+    "openai",
+    "dotenv",
+    "arxiv",
+    "pymupdf",
+]
