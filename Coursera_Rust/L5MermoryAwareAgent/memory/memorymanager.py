@@ -705,25 +705,213 @@ class MemoryManager:
 
         return None 
 
-        
-    def read_tool_logs():
+
+
+    ### TOOL LOG MEMORY(SQL)------------------#######
+     def write_tool_log(
+        self,
+        thread_id:str,
+        tool_name:str,
+        tool_args:str,
+        result:str,
+        status:str = "success",
+        tool_call_id: str | None = None,
+        error_message: str | None = None,
+        metadata: dict | None = None,
+        ) ->str | None:
+
+        """
+        Persist raw tool execution logs for 
+        auditing and just-in-time retrieval.
+        """
+        if not self.tool_log_table:
+            return None
+
+        thread_id = str(thread_id)
+
+
+        if isinstance(tool_args, (dict, list)):
+            tool_args_str = json_lib.dumps(tool_args, ensure_ascii=False)
+        else:
+            tool_args_str = "" if tool_args is None else str(tool_args)
+
+        result_str = "" if result is None else str(result)
+        # Oracle VARCHAR2(2000) may be byte-limited; truncate preview by UTF-8 bytes.
+        preview = result_str.encode("utf-8")[:2000].decode("utf-8", errors="ignore")
+
+        metadata_str = json_lib.dumps(metadata, ensure_ascii=False) if metadata else "{}"
+
         return None
 
-    def write_tool_logs():
+
+    def read_tool_logs(self,
+        thread_id:str,
+        limit:int=20)-> list[dict]:
+
+        """
+        Read recent tool logs for a thread, newest first
+        """
+        if not self.tool_log_table:
+            return []
+
+
+        thread_id = str(thread_id)
+
+        with self.conn.cursor() as cur: 
+            cur.execute(f"""
+                SELECT id, tool_call_id, tool_name, tool_args, result_preview, status, error_message, metadata, timestamp
+                FROM {self.tool_log_table}
+                WHERE thread_id = :thread_id
+                ORDER BY timestamp DESC
+                FETCH FIRST :limit ROWS ONLY
+            """, {"thread_id": thread_id, "limit": limit})
+            rows = cur.fetchall()
+
+
+            logs = []
+
+            for log_id, tool_call_id, tool_name, tool_args, result_preview, status, error_message, metadata, ts in rows:
+            logs.append({
+                "id": log_id,
+                "tool_call_id": tool_call_id,
+                "tool_name": tool_name,
+                "tool_args": tool_args,
+                "result_preview": result_preview,
+                "status": status,
+                "error_message": error_message,
+                "metadata": metadata,
+                "timestamp": ts.isoformat() if ts else None,
+            })
+        return logs
+
         return None
 
-    def write_knowledge_base():
-        return None
+   
 
-    def read_knowledge_base():
-        return None
+    def write_knowledge_base(
+        self, text: str | list[str], metadata: dict | list[dict]
+        ):
+
+        """
+        Knowledge Base is structured Data Repository,
+        Supports: 
+        - Single Record: text=str, metadata=dict
+        - Batch_insert: test= list[str],metadata=list[dict]        
+        """
+
+        if instance(text,list):
+            texts = [str(t) for t in text]
+
+            if isinstance(metadata,list):
+                metadatas = metadata
+            else:
+                metadatas = [metadata for _ in texts]
+
+            #Goal: You wanna achieve for every text one metadata. 
+            if len(texts) !=len(metadatas):
+                raise ValueError(
+                    f"knowledge-base batch length mismatch: {len(texts) } vs {len(metadatas)}metadata rows"
+                    )
+                self.knowledge_base_vs.add_texts(texts,metadatas)
+        return self.knowledge_base_vs.add_texts([str(text)], [metadata if isinstance(metadata, dict) else {}])
+
+    """
+    Read_Knowledge Base: 
+    self, query, k
+    """
+    def read_knowledge_base(self,query:str,k:int=3)->str:
+        """
+        Search Knowledge base for relevant content.
+        """
+        results = self.knowledge_base_vs.similarity(query,k=k)
+        content = "\n".join([doc.page_content for doc in results])
+
+        if not content:
+            content = "(No relevant knowledge base passages found.)"
+        return f"""## Knowledge Base Memory
+        ### What ths memory is Retrieved background documents
+        and previously ingested reference material relevant to the current query.
+
+        ### How you should leverage it
+
+        - Ground responses in these passages when making factunal or technical claims.
+        - Prefer concrete details from this memory over unsupported
+        assumptons. 
+
+        - If evidence is missing or ambitious, state uncertainty and request clarification or 
+        additional retrieval. 
+        ### Retrieved Passages{content}
+        """
 
 
     #----------------- WORKFLOW (Vector Store) ----------------#
-    def write_workflow(self):
+    def write_workflow(
+        self,
+        query: str,
+        steps:list, 
+        final_answer:str, 
+        success: bool = True
+        ):
+        """
+        Store a completed workflow for future 
+        reference.
+        """
+
+
+        # Format steps as text
+        steps_text = "\n".join([f"Step {i + 1}: {s}" for i, s in enumerate(steps)])
+        text = f"Query: {query}\nSteps:\n{steps_text}\nAnswer: {final_answer[:200]}"
+
+
+        metadata = {
+            "query": query,
+            "success": success,
+            "num_steps": len(steps),
+            "timestamp": datetime.now().isoformat()
+        }
+        self.workflow_vs.add_texts([text], [metadata])
+
         return None
 
-    def read_workflow(self):
+    def read_workflow(self,
+        query:str,
+        k:int = 3)-> str:
+        """
+        Search for similar past workflows with at least 1 step.
+        """
+
+        # Filter to only include workflows that have steps (num_steps >0 )
+        results = self.workflow_vs.similarity_search(
+            query,
+            k=k,
+            filter = {"num_steps":{"$gt":0}}
+            )
+
+        if not results: 
+            return """## Workflow Memory
+### What this memory is
+Past task trajectories that include query context, ordered steps taken, and prior outcomes.
+### How you should leverage it
+- Use these workflows as reusable execution patterns for planning and tool orchestration.
+- Adapt step sequences to the current task rather than copying blindly.
+- Reuse successful patterns first, then adjust when task scope or constraints differ.
+### Retrieved workflows
+(No relevant workflows found.)"""
+        content = "\n---\n".join([doc.page_content for doc in results])
+        return f"""## Workflow Memory
+### What this memory is
+Past task trajectories that include query context, ordered steps taken, and prior outcomes.
+### How you should leverage it
+- Use these workflows as reusable execution patterns for planning and tool orchestration.
+- Adapt step sequences to the current task rather than copying blindly.
+- Reuse successful patterns first, then adjust when task scope or constraints differ.
+### Retrieved workflows
+
+{content}"""
+
+
+
+
         return None
 
     #----------------- Toolbox (Vector Store) ------------------#
@@ -988,4 +1176,6 @@ class StoreManager:
 #if we need Toolbox we can make 
 ######
 
+
+##Deploy this by the evening the Memory Manager
 
