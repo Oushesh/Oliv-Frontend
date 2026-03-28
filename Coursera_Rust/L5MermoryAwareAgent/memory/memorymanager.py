@@ -909,19 +909,59 @@ Past task trajectories that include query context, ordered steps taken, and prio
 
 {content}"""
 
-
-
-
-        return None
-
     #----------------- Toolbox (Vector Store) ------------------#
 
-    def write_toolbox(self):
-        return None
+    def write_toolbox(self, text:str,metadata:dict):
+        """
+        Store a tool definition in the toolbox
+        """
+        self.toolbox_vs.add_texts([text],[metadata])
+        
+    """
+    TO read_ toolbox, aka finding relevant toolbox based
+    on the sentence description of each and every function
+    --> Semantic Similarity 
+    """
+    def read_toolbox(self,
+        query:str,
+        k:int = 3
+        ) -> list[dict]:
+        
+        """
+        Find relevant tools and return OpenAI-compatible schemas.
+        """
 
-    def read_toolbox(self):
-        return None
+        results = self.toolbox_vs.similarity_search(query,k=k)
+        tools = []
 
+        seen_tool_names: set[str] = set()
+
+        # Set you caan addition and substration.
+        for doc in results:
+            meta = doc.metadata
+            tool_name = meta.get("name","tool")
+
+            if tool_name in seen_tool_names:
+                continue
+
+            seen_tool_names.add(tool_name)
+
+            # Extract parameters from metadata and convert to OpenAI format
+
+            stored_params = meta.get("parameters",{})
+            properties = {}
+            required = []
+
+
+            for param_name, param_info in stored_params.items():
+                # Convert stored param info to OpenAI schema format
+
+                param_type = param_info.get("type","string")
+
+                # Map python types to JSON schema
+
+
+        return None
 
     #----------------- Enttiy (Vector Store) -----------------#
 
@@ -1128,19 +1168,23 @@ class StoreManager:
 
 		def get_tool_log_table(self):
 			"""
-
+            return the tool log table name.                        
 			"""
 			return self._tool_log_table
 
-
 		def get_knowledge_base_store(self):
+            """
+            Return the knowledge base vector store.
+            """
 			return self._knowledge_base_vs
+
 
 		def get_workflow_store(self):
 			"""
 			Return the workflow vector store
 			"""
 			return self._workflow_vs
+
 
 		def get_entity_store(self):
 			"""
@@ -1162,7 +1206,6 @@ class StoreManager:
 			Creates vectorizer preference for hybrid indexing.
 			"""
 			self._kb_vectorizer_pref = OracleVectorizerPreference.create_preference(
-
 				vector_store = self._knowledge_base_vs,
 				preference_name = preference_name
 				)
@@ -1170,11 +1213,6 @@ class StoreManager:
 
 
 
-
-
-###### 
-#if we need Toolbox we can make 
-######
 
 
 ##Deploy this by the evening the Memory Manager
