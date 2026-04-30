@@ -1,5 +1,5 @@
-//The lib.rs will be used to define the function which will then be input into main.rs
-//main.rs
+//The lib.rs will be used to define the function which will then be input into main_user
+//main_user
 
 /*
 Gaussian Temporal Function
